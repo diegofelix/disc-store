@@ -2,19 +2,28 @@
 
 namespace App\Models\Disc;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Disc extends Model
 {
-    use HasFactory;
-
+    /**
+     * This will handle date fields
+     * as datetime instances.
+     *
+     * @var string[]
+     */
     protected $dates = [
         'created_at',
         'updated_at',
         'released_at',
     ];
 
+    /**
+     * This will enable creating discs
+     * with create and fill methods.
+     *
+     * @var string[]
+     */
     protected $fillable = [
         'name',
         'artist',
