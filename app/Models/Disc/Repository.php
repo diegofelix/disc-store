@@ -8,6 +8,11 @@ class Repository
 {
     public function list(): Collection
     {
-        return Disc::all();
+        return $this->getModel()->all();
+    }
+
+    private function getModel(): Disc
+    {
+        return app(Disc::class);
     }
 }

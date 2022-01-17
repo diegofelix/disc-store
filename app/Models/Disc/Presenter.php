@@ -15,7 +15,7 @@ class Presenter
         return $data ?? [];
     }
 
-    private function presentSingleDisc(Disc $disc): array
+    public function presentSingleDisc(Disc $disc): array
     {
         return [
             'id' => $disc->id,
