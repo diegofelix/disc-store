@@ -6,9 +6,23 @@ use Illuminate\Support\Collection;
 
 class Repository
 {
-    public function list(): Collection
+    public function list(?array $filters = []): Collection
     {
-        return $this->getModel()->all();
+        $query = $this->getModel();
+
+        foreach ($filters as $filterKey => $value) {
+            $operator = '=';
+
+            // When filtering by release date
+            // we may want to show all discs from that period.
+            if ($filterKey === 'released_at') {
+                $operator = '>=';
+            }
+
+            $query = $query->where($filterKey, $operator, $value);
+        }
+
+        return $query->get();
     }
 
     private function getModel(): Disc

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\GetDiscs;
 use App\Models\Disc\Presenter;
 use App\Models\Disc\Repository;
 use Illuminate\Http\JsonResponse;
@@ -26,9 +27,10 @@ class DiscsController extends Controller
         $this->presenter = $presenter;
     }
 
-    public function index(): JsonResponse
+    public function index(GetDiscs $request): JsonResponse
     {
-        $discs = $this->discs->list();
+        $filter = $request->validated();
+        $discs = $this->discs->list($filter['filter'] ?? []);
         $data = $this->presenter->present($discs);
 
         return response()->json(compact('data'));
