@@ -38,6 +38,18 @@ class User extends Authenticatable
     ];
 
     /**
+     * This will handle date fields
+     * as datetime instances.
+     *
+     * @var string[]
+     */
+    protected $dates = [
+        'created_at',
+        'updated_at',
+        'birthdate',
+    ];
+
+    /**
      * The attributes that should be cast.
      *
      * @var array<string, string>
