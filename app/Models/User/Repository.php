@@ -20,6 +20,11 @@ class Repository
         return $user->save() ? $user : null;
     }
 
+    public function findById(string $id): ?User
+    {
+        return $this->getModel()->find($id);
+    }
+
     public function destroy(User $user): bool
     {
         return $user->delete();

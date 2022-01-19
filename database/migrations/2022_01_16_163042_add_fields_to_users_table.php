@@ -17,6 +17,7 @@ class AddFieldsToUsersTable extends Migration
             $table->string('fiscal_id')->unique()->after('email');
             $table->dateTime('birthdate')->after('fiscal_id');
             $table->string('phone')->after('birthdate');
+            $table->timestamp('deleted_at')->nullable();
         });
     }
 

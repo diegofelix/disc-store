@@ -39,4 +39,19 @@ class UsersController extends Controller
             $this->presenter->presentSingleUser($user)
         );
     }
+
+    public function cancel(string $id): JsonResponse
+    {
+        if (!$user = $this->users->findById($id)) {
+            return abort(Response::HTTP_NOT_FOUND);
+        }
+
+        if (!$this->users->destroy($user)) {
+            return response()->json([
+                'error' => 'Error when registering a new User.',
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        return response()->json([], Response::HTTP_NO_CONTENT);
+    }
 }

@@ -10,5 +10,5 @@ Route::post('discs', [DiscsController::class, 'store']);
 Route::delete('discs/{id}', [DiscsController::class, 'destroy']);
 
 Route::post('users', [UsersController::class, 'register']);
-Route::post('users/{id}/update', [UsersController::class, 'update']);
-Route::post('users/{id}/cancel', [UsersController::class, 'cancel']);
+Route::put('users/{id}', [UsersController::class, 'update']);
+Route::delete('users/{id}', [UsersController::class, 'cancel']);
