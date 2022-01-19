@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\CreateDisc;
 use App\Http\Requests\Admin\GetDiscs;
 use App\Models\Disc\Presenter;
 use App\Models\Disc\Repository;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class DiscsController extends Controller
 {
@@ -34,5 +34,18 @@ class DiscsController extends Controller
         $data = $this->presenter->present($discs);
 
         return response()->json(compact('data'));
+    }
+
+    public function store(CreateDisc $request): JsonResponse
+    {
+        if (!$disc = $this->discs->create($request->validated())) {
+            return response()->json([
+                'error' => 'Error when creating a new Disc.',
+            ]);
+        }
+
+        return response()->json(
+            $this->presenter->presentSingleDisc($disc)
+        );
     }
 }

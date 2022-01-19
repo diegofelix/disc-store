@@ -25,6 +25,14 @@ class Repository
         return $query->get();
     }
 
+    public function create(array $attributes): ?Disc
+    {
+        $disc = $this->getModel();
+        $disc->fill($attributes);
+
+        return $disc->save() ? $disc : null;
+    }
+
     private function getModel(): Disc
     {
         return app(Disc::class);

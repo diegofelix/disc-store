@@ -3,9 +3,7 @@
 namespace Tests\Feature\Admin;
 
 use App\Models\Disc\Disc;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class DiscManagerTest extends TestCase
@@ -14,8 +12,10 @@ class DiscManagerTest extends TestCase
 
     public function testShouldGetAllDiscs(): void
     {
-        // Actions
+        // Set
         $this->createDiscs();
+
+        // Actions
         $response = $this->getJson('api/discs');
 
         // Assertions
@@ -34,7 +34,7 @@ class DiscManagerTest extends TestCase
                     'name' => 'Prazer, Ferrugem',
                     'artist' => 'Ferrugem',
                     'style' => 'pagode',
-                    'released_at' => '2021-01-16',
+                    'released_at' => '2022-01-20',
                     'stock' => 100,
                 ],
             ],
@@ -46,8 +46,10 @@ class DiscManagerTest extends TestCase
     /** @dataProvider getFilters */
     public function testShouldGetDiscsFiltering(array $filter, int $expectedCount, int $expectedId): void
     {
-        // Actions
+        // Set
         $this->createDiscs();
+
+        // Actions
         $queryString = http_build_query($filter);
         $response = $this->getJson("api/discs?$queryString");
 
@@ -56,6 +58,37 @@ class DiscManagerTest extends TestCase
         $jsonData = $response->json('data');
         $this->assertCount($expectedCount, $jsonData);
         $this->assertSame($expectedId, $jsonData[0]['id']);
+    }
+
+    public function testShouldCreateDisc(): void
+    {
+        // Actions
+        $this->postJson('api/discs', [
+            'name' => 'Number Ones',
+            'artist' => 'Michael Jackson',
+            'style' => 'pop',
+            'released_at' => '2022-01-16',
+            'stock' => 1,
+        ]);
+
+        // Assertions
+        $this->assertDatabaseCount(Disc::class, 1);
+        $this->assertDatabaseHas(Disc::class, ['id' => 1]);
+    }
+
+    public function testShouldReceiveValidationErrors(): void
+    {
+        // Actions
+        $response = $this->postJson('api/discs', [
+            'name' => 'Number Ones',
+            'artist' => 'Michael Jackson',
+            'released_at' => '2022-01-16',
+            'stock' => 1,
+        ]);
+
+        // Assertions
+        $response->assertJsonValidationErrorFor('style');
+        $this->assertDatabaseMissing(Disc::class, ['id' => 1]);
     }
 
     private function createDiscs(): void
