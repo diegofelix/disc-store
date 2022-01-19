@@ -25,6 +25,14 @@ class Repository
         return $this->getModel()->find($id);
     }
 
+    public function update(User $user, $attributes): User
+    {
+        $user->fill($attributes);
+        $user->save();
+
+        return $user;
+    }
+
     public function destroy(User $user): bool
     {
         return $user->delete();

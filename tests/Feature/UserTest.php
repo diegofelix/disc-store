@@ -92,4 +92,68 @@ class UserTest extends TestCase
         // Assertions
         $response->assertStatus(404);
     }
+
+    public function testShouldUpdateUser(): void
+    {
+        // Set
+        User::create([
+            'name' => 'Diego Felix',
+            'email' => 'diego@diegofelix.com.br',
+            'fiscal_id' => '11.111.111-1',
+            'birthdate' => '1987-03-22',
+            'password' => 'some pass',
+            'phone' => '+55 11 96293 7145',
+        ]);
+
+        // Actions
+        $response = $this->putJson('api/users/1', [
+            'name' => 'Diego Felix de Oliveira',
+            'fiscal_id' => '11.111.111-1',
+            'birthdate' => '1987-03-22',
+            'phone' => '+55 11 96293 7146',
+        ]);
+
+        // Assertions
+        $response->assertStatus(200);
+        $this->assertDatabaseHas(User::class, [
+            'name' => 'Diego Felix de Oliveira',
+            'phone' => '+55 11 96293 7146',
+        ]);
+    }
+
+    public function testShouldNotUpdateInvalidUser(): void
+    {
+        // Actions
+        $response = $this->putJson('api/users/1', [
+            'name' => 'Diego Felix de Oliveira',
+            'phone' => '+55 11 96293 7146',
+        ]);
+
+        // Assertions
+        $response->assertStatus(404);
+    }
+
+    public function testShouldNotUpdateSensitiveInformation(): void
+    {
+        // Set
+        User::create([
+            'email' => 'diego@diegofelix.com.br',
+            'name' => 'Diego Felix',
+            'fiscal_id' => '11.111.111-1',
+            'birthdate' => '1987-03-22',
+            'password' => 'some pass',
+            'phone' => '+55 11 96293 7145',
+        ]);
+
+        // Actions
+        $response = $this->putJson('api/users/1', [
+            'fiscal_id' => '11.111.111-2',
+        ]);
+
+        // Assertions
+        $response->assertStatus(422);
+        $response->assertJson([
+            'error' => 'Nothing to update',
+        ]);
+    }
 }
