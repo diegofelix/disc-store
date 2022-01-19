@@ -3,6 +3,7 @@
 namespace Tests\Feature\Admin;
 
 use App\Models\Disc\Disc;
+use DateTime;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -34,7 +35,47 @@ class DiscManagerTest extends TestCase
                     'name' => 'Prazer, Ferrugem',
                     'artist' => 'Ferrugem',
                     'style' => 'pagode',
-                    'released_at' => '2022-01-20',
+                    'released_at' => '2022-01-18',
+                    'stock' => 100,
+                ],
+            ],
+        ]);
+
+        $response->assertStatus(200);
+    }
+
+    public function testShouldGetAllDiscsThatWasAlreadyReleased(): void
+    {
+        // Set
+        $this->createDiscs();
+        Disc::create([
+            'name' => 'We are Reactive',
+            'artist' => 'Hohpe',
+            'style' => 'pop',
+            'released_at' => (new DateTime('next week midnight'))->format('Y-m-d H:i:s'),
+            'stock' => 500,
+        ]);
+
+        // Actions
+        $response = $this->getJson('api/discs');
+
+        // Assertions
+        $response->assertJson([
+            'data' => [
+                [
+                    'id' => 1,
+                    'name' => 'Number Ones',
+                    'artist' => 'Michael Jackson',
+                    'style' => 'pop',
+                    'released_at' => '2022-01-16',
+                    'stock' => 1,
+                ],
+                [
+                    'id' => 2,
+                    'name' => 'Prazer, Ferrugem',
+                    'artist' => 'Ferrugem',
+                    'style' => 'pagode',
+                    'released_at' => '2022-01-18',
                     'stock' => 100,
                 ],
             ],
@@ -151,7 +192,7 @@ class DiscManagerTest extends TestCase
             'name' => 'Prazer, Ferrugem',
             'artist' => 'Ferrugem',
             'style' => 'pagode',
-            'released_at' => '2022-01-20',
+            'released_at' => '2022-01-18',
             'stock' => 100,
         ]);
     }

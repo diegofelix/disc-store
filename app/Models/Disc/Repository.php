@@ -2,13 +2,15 @@
 
 namespace App\Models\Disc;
 
+use DateTime;
 use Illuminate\Support\Collection;
 
 class Repository
 {
     public function list(?array $filters = []): Collection
     {
-        $query = $this->getModel();
+        $now = (new DateTime())->format('Y-m-d H:i');
+        $query = $this->getModel()->where('released_at', '<=', $now);
 
         foreach ($filters as $filterKey => $value) {
             $operator = '=';

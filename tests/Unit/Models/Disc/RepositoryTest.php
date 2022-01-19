@@ -4,6 +4,7 @@ namespace Models\Disc;
 
 use App\Models\Disc\Disc;
 use App\Models\Disc\Repository;
+use DateTime;
 use Mockery as m;
 use Illuminate\Support\Collection;
 use Tests\TestCase;
@@ -13,11 +14,16 @@ class RepositoryTest extends TestCase
     public function testShouldGetAllDiscs(): void
     {
         // Set
+        $now = (new DateTime())->format('Y-m-d H:i');
         $repository = new Repository();
         $collection = new Collection([new Disc()]);
         $disc = $this->instance(Disc::class, m::mock(Disc::class));
 
         // Expectations
+        $disc->expects()
+            ->where('released_at', '<=', $now)
+            ->andReturnSelf();
+
         $disc->expects()
             ->get()
             ->andReturn($collection);
@@ -32,11 +38,16 @@ class RepositoryTest extends TestCase
     public function testShouldGetAllDiscsFilteringIt(): void
     {
         // Set
+        $now = (new DateTime())->format('Y-m-d H:i');
         $repository = new Repository();
         $collection = new Collection([new Disc()]);
         $disc = $this->instance(Disc::class, m::mock(Disc::class));
 
         // Expectations
+        $disc->expects()
+            ->where('released_at', '<=', $now)
+            ->andReturnSelf();
+
         $disc->expects()
             ->where('some', '=', 'filter')
             ->andReturnSelf();
@@ -55,11 +66,16 @@ class RepositoryTest extends TestCase
     public function testShouldFilterReleaseDate(): void
     {
         // Set
+        $now = (new DateTime())->format('Y-m-d H:i');
         $repository = new Repository();
         $collection = new Collection([new Disc()]);
         $disc = $this->instance(Disc::class, m::mock(Disc::class));
 
         // Expectations
+        $disc->expects()
+            ->where('released_at', '<=', $now)
+            ->andReturnSelf();
+
         $disc->expects()
             ->where('released_at', '>=', '2020-01-01')
             ->andReturnSelf();
