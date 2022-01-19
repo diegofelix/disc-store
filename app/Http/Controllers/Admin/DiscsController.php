@@ -53,11 +53,26 @@ class DiscsController extends Controller
         if (!$disc = $this->discs->create($request->validated())) {
             return response()->json([
                 'error' => 'Error when creating a new Disc.',
-            ]);
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         return response()->json(
             $this->presenter->presentSingleDisc($disc)
         );
+    }
+
+    public function destroy(string $id): JsonResponse
+    {
+        if (!$disc = $this->discs->findById($id)) {
+            return abort(Response::HTTP_NOT_FOUND);
+        }
+
+        if (!$this->discs->destroy($disc)) {
+            return response()->json([
+                'error' => 'Failed to delete disc',
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        return response()->json([], Response::HTTP_NO_CONTENT);
     }
 }

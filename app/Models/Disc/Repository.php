@@ -42,4 +42,9 @@ class Repository
     {
         return app(Disc::class);
     }
+
+    public function destroy(Disc $disc): bool
+    {
+        return $disc->delete();
+    }
 }

@@ -6,3 +6,4 @@ use Illuminate\Support\Facades\Route;
 Route::get('discs', [DiscsController::class, 'index']);
 Route::get('discs/{id}', [DiscsController::class, 'show']);
 Route::post('discs', [DiscsController::class, 'store']);
+Route::delete('discs/{id}', [DiscsController::class, 'destroy']);

@@ -115,6 +115,28 @@ class DiscManagerTest extends TestCase
         $this->assertDatabaseMissing(Disc::class, ['id' => 1]);
     }
 
+    public function testShouldDeleteADisc(): void
+    {
+        // Set
+        $this->createDiscs();
+
+        // Actions
+        $response = $this->deleteJson("api/discs/1");
+
+        // Assertions
+        $response->assertStatus(204);
+        $this->assertDatabaseCount(Disc::class, 1);
+    }
+
+    public function testShouldReceive404WhenTryingToDeleteAnInvalidDisc(): void
+    {
+        // Actions
+        $response = $this->deleteJson("api/discs/1");
+
+        // Assertions
+        $response->assertStatus(404);
+    }
+
     private function createDiscs(): void
     {
         Disc::create([
