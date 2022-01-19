@@ -60,6 +60,30 @@ class DiscManagerTest extends TestCase
         $this->assertSame($expectedId, $jsonData[0]['id']);
     }
 
+    public function testShouldFindDiscById(): void
+    {
+        // Set
+        $this->createDiscs();
+
+        // Actions
+        $response = $this->getJson("api/discs/1");
+
+        // Assertions
+        $response->assertStatus(200);
+        $response->assertJsonFragment([
+            'name' => 'Number Ones',
+        ]);
+    }
+
+    public function testShouldReceive404IfIdDoesNotExist(): void
+    {
+        // Actions
+        $response = $this->getJson("api/discs/1");
+
+        // Assertions
+        $response->assertStatus(404);
+    }
+
     public function testShouldCreateDisc(): void
     {
         // Actions

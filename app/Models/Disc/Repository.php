@@ -25,6 +25,11 @@ class Repository
         return $query->get();
     }
 
+    public function findById(string $id): ?Disc
+    {
+        return $this->getModel()->find($id);
+    }
+
     public function create(array $attributes): ?Disc
     {
         $disc = $this->getModel();

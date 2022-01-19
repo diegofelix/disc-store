@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\GetDiscs;
 use App\Models\Disc\Presenter;
 use App\Models\Disc\Repository;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 
 class DiscsController extends Controller
 {
@@ -34,6 +35,17 @@ class DiscsController extends Controller
         $data = $this->presenter->present($discs);
 
         return response()->json(compact('data'));
+    }
+
+    public function show(string $id): JsonResponse
+    {
+        if (!$disc = $this->discs->findById($id)) {
+            return abort(Response::HTTP_NOT_FOUND);
+        }
+
+        return response()->json(
+            $this->presenter->presentSingleDisc($disc)
+        );
     }
 
     public function store(CreateDisc $request): JsonResponse
