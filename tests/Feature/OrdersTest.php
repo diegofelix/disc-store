@@ -51,6 +51,26 @@ class OrdersTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function testShouldNotCreateAnOrderForAnInvalidUser(): void
+    {
+        // Actions
+        $this->createCustomers();
+        $this->createDiscs();
+        $this->createOrders();
+        $response = $this->postJson('api/orders', [
+            'customer_id' => 3,
+            'disc_id' => 1,
+            'quantity' => 10,
+        ]);
+
+        // Assertions
+        $response->assertJson([
+            'error' => 'Error when registering a new Order.',
+        ]);
+
+        $response->assertStatus(422);
+    }
+
     public function testShouldListOrders(): void
     {
         // Actions
@@ -173,6 +193,16 @@ class OrdersTest extends TestCase
             'password' => 'some pass',
             'phone' => '+55 11 96293 7146',
         ]);
+
+        $invalidUser = User::create([
+            'name' => 'Invalid User',
+            'email' => 'invalid@diegofelix.com.br',
+            'fiscal_id' => '11.111.111-3',
+            'birthdate' => '1987-03-24',
+            'password' => 'some pass',
+            'phone' => '+55 11 96293 7146',
+        ]);
+        $invalidUser->delete();
     }
 
     public function getFilters(): array

@@ -2,12 +2,20 @@
 
 namespace App\Models\Order;
 
-use DateTime;
-use Illuminate\Database\Query\Builder;
+use App\Models\User\Repository as CustomerRepository;
 use Illuminate\Support\Collection;
 
 class Repository
 {
+    /**
+     * @var CustomerRepository
+     */
+    private $customerRepository;
+
+    public function __construct(CustomerRepository $customerRepository)
+    {
+        $this->customerRepository = $customerRepository;
+    }
 
     public function list(?array $filters = []): Collection
     {
@@ -36,6 +44,10 @@ class Repository
 
     public function create(array $attributes): ?Order
     {
+        if (!$this->customerIsInvalid($attributes)) {
+            return null;
+        }
+
         $disc = $this->getModel();
         $disc->fill($attributes);
 
@@ -45,5 +57,14 @@ class Repository
     private function getModel(): Order
     {
         return app(Order::class);
+    }
+
+    private function customerIsInvalid(array $attributes): bool
+    {
+        if (!$customerId = $attributes['customer_id'] ?? false) {
+            return false;
+        }
+
+        return (bool) $this->customerRepository->findById($customerId);
     }
 }
