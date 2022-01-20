@@ -3,10 +3,12 @@
 namespace App\Models\Order;
 
 use DateTime;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
 
 class Repository
 {
+
     public function list(?array $filters = []): Collection
     {
         $query = $this->getModel();
@@ -14,12 +16,11 @@ class Repository
         foreach ($filters as $filterKey => $value) {
             $operator = '=';
 
-            if ($filterKey === 'from') {
-                $operator = '>=';
-            }
+            if (in_array($filterKey, ['from', 'until'])) {
+                $operator = $filterKey === 'from' ? '>=' : '<';
+                $query = $query->where('created_at', $operator, $value);
 
-            if ($filterKey === 'until') {
-                $operator = '<=';
+                continue;
             }
 
             $query = $query->where($filterKey, $operator, $value);
