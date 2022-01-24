@@ -44,14 +44,14 @@ class Repository
 
     public function create(array $attributes): ?Order
     {
+        $order = $this->getModel();
         if (!$this->customerIsInvalid($attributes)) {
             return null;
         }
 
-        $disc = $this->getModel();
-        $disc->fill($attributes);
+        $order->fill($attributes);
 
-        return $disc->save() ? $disc : null;
+        return $order->save() ? $order : null;
     }
 
     private function getModel(): Order
