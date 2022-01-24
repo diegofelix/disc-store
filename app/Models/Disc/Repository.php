@@ -68,4 +68,11 @@ class Repository
             ? $totalStock
             : 0;
     }
+
+    public function reserveFor(Disc $disc, $quantity): bool
+    {
+        $disc->reserved_stock = $quantity;
+
+        return $disc->save();
+    }
 }

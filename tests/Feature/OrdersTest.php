@@ -50,6 +50,13 @@ class OrdersTest extends TestCase
         ]);
 
         $response->assertStatus(200);
+
+        // Checks if the stock was reserved.
+        $this->assertDatabaseHas(Disc::class, [
+            'id' => 1,
+            'stock' => 100,
+            'reserved_stock' => 10,
+        ]);
     }
 
     public function testShouldNotCreateOrderForInvalidStock(): void

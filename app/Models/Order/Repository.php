@@ -7,6 +7,7 @@ use App\Models\Disc\Repository as DiscRepository;
 use App\Models\User\Repository as CustomerRepository;
 use App\Models\User\User;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class Repository
 {
@@ -53,20 +54,27 @@ class Repository
 
     public function create(array $attributes): Order
     {
+        $order = $this->getModel();
         $disc = $this->getDisc($attributes);
         $customer = $this->getCustomer($attributes);
-
         $this->validateQuantity($disc, $attributes);
-
-        $order = $this->getModel();
         $order->customer()->associate($customer);
         $order->disc()->associate($disc);
         $order->quantity = $attributes['quantity'];
         $order->status = Order::STATUS_PROCESSING;
 
-        if (!$order->save()) {
-            throw new OrderFailedException();
-        }
+        // This Database transaction makes sure that if we cannot
+        // create an order, we will not be able to reserve stock too.
+        // This avoids reserving stock for orders that does not exist.
+        DB::transaction(function () use ($order, $disc, $customer, $attributes)  {
+            if (!$order->save()) {
+                throw new OrderFailedException();
+            }
+
+            if (!$this->discRepository->reserveFor($disc, $order->quantity)) {
+                throw new UnableToReserveStockException();
+            }
+        });
 
         return $order;
     }
