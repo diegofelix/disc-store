@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Disc\Disc;
 use App\Models\Order\Order;
+use App\Models\Order\ReservedStock;
 use App\Models\User\User;
 use DateTime;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -28,6 +29,7 @@ class OrdersTest extends TestCase
         // Assertions
         $response->assertJson([
             'id' => 4,
+            'status' => 'processing',
             'customer' => [
                 'id' => 1,
                 'name' => 'Diego Felix',
@@ -49,6 +51,110 @@ class OrdersTest extends TestCase
         ]);
 
         $response->assertStatus(200);
+
+        $this->assertDatabaseHas(Disc::class, [
+            'id' => 1,
+            'stock' => 90,
+        ]);
+    }
+
+    public function testShouldNotCreateOrderForInvalidStock(): void
+    {
+        // Actions
+        $this->createCustomers();
+        $this->createDiscs();
+        $this->createOrders();
+        $response = $this->postJson('api/orders', [
+            'customer_id' => 1,
+            'disc_id' => 1,
+            'quantity' => 101,
+        ]);
+
+        // Assertions
+        $response->assertJson([
+            'error' => 'There is no stock for the disc selected.',
+        ]);
+
+        $response->assertStatus(422);
+    }
+
+    public function testShouldBeAbleToBuyWithReservedStock(): void
+    {
+        // Actions
+        $this->createCustomers();
+        $this->createDiscs();
+        $this->createOrders();
+        $response = $this->postJson('api/orders', [
+            'customer_id' => 1,
+            'disc_id' => 1,
+            'quantity' => 10,
+        ]);
+
+        $response->assertJson([
+            'id' => 4,
+            'status' => 'processing',
+            'customer' => [
+                'id' => 1,
+                'name' => 'Diego Felix',
+                'email' => 'diego@diegofelix.com.br',
+                'fiscal_id' => '11.111.111-1',
+                'birthdate' => '1987-03-22',
+                'phone' => '+55 11 96293 7145',
+            ],
+            'disc' => [
+                'id' => 1,
+                'name' => 'Number Ones',
+                'artist' => 'Michael Jackson',
+                'style' => 'pop',
+                'released_at' => '2022-01-16',
+                'stock' => 100,
+            ],
+            'quantity' => 10,
+            'created_at' => (new DateTime())->format('Y-m-d H:i'),
+        ]);
+
+        $response->assertStatus(200);
+        $this->assertDatabaseHas(Disc::class, [
+            'id' => 1,
+            'stock' => 90,
+        ]);
+
+        // On test above, the stock is already decreased by 10
+        // This is because we are processing it on queue.
+        // The tests runs on a sync queue.
+        //
+        // That means that we cannot see the stock being reserved.
+        // To test it works, we will force a reserved stock
+        // here and make sure the ID will be equals to '2'
+        ReservedStock::create([
+            'order_id' => 1,
+            'disc_id' => 1,
+            'quantity' => 10,
+        ]);
+        $this->assertDatabaseHas(ReservedStock::class, ['id' => 2]);
+        $this->assertDatabaseCount(ReservedStock::class, 1);
+    }
+
+    public function testShouldNotBeAbleToCreateAnOrderWithReservedStock(): void
+    {
+        // Actions
+        $this->createCustomers();
+        $this->createDiscs();
+        $this->createOrders();
+        $this->createReservedStocks();
+
+        $response = $this->postJson('api/orders', [
+            'customer_id' => 1,
+            'disc_id' => 1,
+            'quantity' => 71, // 71 + 10 + 20 reserve = 101 = impossible stock
+        ]);
+
+        // Assertions
+        $response->assertJson([
+            'error' => 'There is no stock for the disc selected.',
+        ]);
+
+        $response->assertStatus(422);
     }
 
     public function testShouldNotCreateAnOrderForAnInvalidUser(): void
@@ -65,7 +171,7 @@ class OrdersTest extends TestCase
 
         // Assertions
         $response->assertJson([
-            'error' => 'Error when registering a new Order.',
+            'error' => 'Customer does not exist',
         ]);
 
         $response->assertStatus(422);
@@ -85,6 +191,7 @@ class OrdersTest extends TestCase
             'data' => [
                 [
                     'id' => 1,
+                    'status' => 'processing',
                     'disc_id' => 1,
                     'customer_id' => 2,
                     'quantity' => 10,
@@ -92,6 +199,7 @@ class OrdersTest extends TestCase
                 ],
                 [
                     'id' => 2,
+                    'status' => 'success',
                     'disc_id' => 1,
                     'customer_id' => 2,
                     'quantity' => 10,
@@ -99,6 +207,7 @@ class OrdersTest extends TestCase
                 ],
                 [
                     'id' => 3,
+                    'status' => 'canceled',
                     'disc_id' => 2,
                     'customer_id' => 1,
                     'quantity' => 10,
@@ -130,17 +239,19 @@ class OrdersTest extends TestCase
 
     private function createOrders(): void
     {
-        $anotherOrder = new Order();
-        $anotherOrder->fill([
+        $order = new Order();
+        $order->fill([
+            'status' => Order::STATUS_PROCESSING,
             'customer_id' => 2,
             'disc_id' => 1,
             'quantity' => 10,
         ]);
-        $anotherOrder->setCreatedAt(new DateTime('2022-01-01'));
-        $anotherOrder->save();
+        $order->setCreatedAt(new DateTime('2022-01-01'));
+        $order->save();
 
         $anotherOrder = new Order();
         $anotherOrder->fill([
+            'status' => Order::STATUS_SUCCESS,
             'customer_id' => 2,
             'disc_id' => 1,
             'quantity' => 10,
@@ -149,6 +260,7 @@ class OrdersTest extends TestCase
         $anotherOrder->save();
 
         Order::create([
+            'status' => Order::STATUS_CANCELED,
             'customer_id' => 1,
             'disc_id' => 2,
             'quantity' => 10,
@@ -234,5 +346,19 @@ class OrdersTest extends TestCase
                 'expectedId' => 2,
             ],
         ];
+    }
+
+    private function createReservedStocks(): void
+    {
+        ReservedStock::create([
+            'order_id' => 1,
+            'disc_id' => 1,
+            'quantity' => 10,
+        ]);
+        ReservedStock::create([
+            'order_id' => 2,
+            'disc_id' => 1,
+            'quantity' => 20,
+        ]);
     }
 }

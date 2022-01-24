@@ -31,4 +31,11 @@ class Disc extends Model
         'style',
         'stock',
     ];
+
+    public function getStock(): int
+    {
+        return $this->stock > 0
+            ? $this->stock
+            : 0;
+    }
 }

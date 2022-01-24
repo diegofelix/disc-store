@@ -2,6 +2,8 @@
 
 namespace App\Models\Disc;
 
+use App\Models\Order\Order;
+use App\Models\Order\ReservedStock;
 use DateTime;
 use Illuminate\Support\Collection;
 
@@ -40,13 +42,51 @@ class Repository
         return $disc->save() ? $disc : null;
     }
 
+    public function destroy(Disc $disc): bool
+    {
+        return $disc->delete();
+    }
+
+    public function discHasStock(Disc $disc, int $quantity): bool
+    {
+        $totalStock = $this->calculateStockWithReserved($disc);
+
+        return $totalStock >= $quantity;
+    }
+
+    private function calculateStockWithReserved(Disc $disc)
+    {
+        $reservedStock = $this->getReservedStock();
+        $stock = $disc->getStock();
+
+        $totalStock = $stock - $reservedStock;
+
+        return $totalStock > 0
+            ? $totalStock
+            : 0;
+    }
+
+    public function getReservedStock(): int
+    {
+        return $this->getReservedStockModel()
+            ->where(['disc_id' => 1])
+            ->sum('quantity');
+    }
+
+    public function decreaseStock(Disc $disc, $quantity): bool
+    {
+        $disc->stock -= $quantity;
+
+        return $disc->save();
+    }
+
     private function getModel(): Disc
     {
         return app(Disc::class);
     }
 
-    public function destroy(Disc $disc): bool
+    private function getReservedStockModel(): ReservedStock
     {
-        return $disc->delete();
+        return app(ReservedStock::class);
     }
 }
