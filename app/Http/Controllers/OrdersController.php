@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Admin\CreateOrder;
 use App\Http\Requests\Admin\GetOrders;
+use App\Jobs\ProcessOrder;
 use App\Models\Order\Presenter;
 use App\Models\Order\Repository;
 use Illuminate\Http\JsonResponse;
@@ -43,6 +44,8 @@ class OrdersController extends Controller
                 'error' => 'Error when registering a new Order.',
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
+
+        ProcessOrder::dispatch($order);
 
         return response()->json(
             $this->presenter->presentSingleOrder($order)
