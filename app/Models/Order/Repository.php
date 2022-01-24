@@ -51,7 +51,11 @@ class Repository
 
         $order->fill($attributes);
 
-        return $order->save() ? $order : null;
+        if (!$order->save()) {
+            throw new OrderFailedException();
+        }
+
+        return $order;
     }
 
     private function getModel(): Order
