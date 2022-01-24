@@ -12,6 +12,10 @@ class Order extends Model
 {
     use HasFactory;
 
+    const STATUS_PROCESSING = 'processing';
+    const STATUS_SUCCESS = 'success';
+    const STATUS_CANCELED = 'canceled';
+
     /**
      * This will enable creating discs
      * with create and fill methods.
@@ -19,6 +23,7 @@ class Order extends Model
      * @var string[]
      */
     protected $fillable = [
+        'status',
         'customer_id',
         'disc_id',
         'quantity',

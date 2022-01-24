@@ -28,6 +28,7 @@ class Presenter
         foreach ($orders as $order) {
             $data[] = [
                 'id' => $order->id,
+                'status' => $order->status,
                 'disc_id' => $order->disc_id,
                 'customer_id' => $order->customer_id,
                 'quantity' => $order->quantity,
@@ -45,6 +46,7 @@ class Presenter
 
         return [
             'id' => $order->id,
+            'status' => $order->status,
             'customer' => $this->customerPresenter->presentSingleUser($customer),
             'disc' => $this->discPresenter->presentSingleDisc($disc),
             'quantity' => $order->quantity,

@@ -28,6 +28,7 @@ class OrdersTest extends TestCase
         // Assertions
         $response->assertJson([
             'id' => 4,
+            'status' => 'processing',
             'customer' => [
                 'id' => 1,
                 'name' => 'Diego Felix',
@@ -105,6 +106,7 @@ class OrdersTest extends TestCase
             'data' => [
                 [
                     'id' => 1,
+                    'status' => 'processing',
                     'disc_id' => 1,
                     'customer_id' => 2,
                     'quantity' => 10,
@@ -112,6 +114,7 @@ class OrdersTest extends TestCase
                 ],
                 [
                     'id' => 2,
+                    'status' => 'success',
                     'disc_id' => 1,
                     'customer_id' => 2,
                     'quantity' => 10,
@@ -119,6 +122,7 @@ class OrdersTest extends TestCase
                 ],
                 [
                     'id' => 3,
+                    'status' => 'canceled',
                     'disc_id' => 2,
                     'customer_id' => 1,
                     'quantity' => 10,
@@ -152,6 +156,7 @@ class OrdersTest extends TestCase
     {
         $anotherOrder = new Order();
         $anotherOrder->fill([
+            'status' => Order::STATUS_PROCESSING,
             'customer_id' => 2,
             'disc_id' => 1,
             'quantity' => 10,
@@ -161,6 +166,7 @@ class OrdersTest extends TestCase
 
         $anotherOrder = new Order();
         $anotherOrder->fill([
+            'status' => Order::STATUS_SUCCESS,
             'customer_id' => 2,
             'disc_id' => 1,
             'quantity' => 10,
@@ -169,6 +175,7 @@ class OrdersTest extends TestCase
         $anotherOrder->save();
 
         Order::create([
+            'status' => Order::STATUS_CANCELED,
             'customer_id' => 1,
             'disc_id' => 2,
             'quantity' => 10,

@@ -62,6 +62,7 @@ class Repository
         $order->customer()->associate($customer);
         $order->disc()->associate($disc);
         $order->quantity = $attributes['quantity'];
+        $order->status = Order::STATUS_PROCESSING;
 
         if (!$order->save()) {
             throw new OrderFailedException();
