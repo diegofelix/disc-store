@@ -2,6 +2,7 @@
 
 namespace App\Models\Disc;
 
+use App\Models\Order\Order;
 use DateTime;
 use Illuminate\Support\Collection;
 
@@ -69,9 +70,21 @@ class Repository
             : 0;
     }
 
-    public function reserveFor(Disc $disc, $quantity): bool
+    public function reserveFor(Disc $disc, Order $order): bool
     {
-        $disc->reserved_stock = $quantity;
+        $disc->reserved_stock = $order->quantity;
+
+        return $disc->save();
+    }
+
+    public function releaseReservedStockFor(Disc $disc, Order $order): bool
+    {
+        if (!$this->discHasStock($disc, $order->quantity)) {
+            return false;
+        }
+
+        $disc->stock = $disc->stock - $order->quantity;
+        $disc->reserved_stock = $disc->reserved_stock - $order->quantity;
 
         return $disc->save();
     }

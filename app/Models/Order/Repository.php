@@ -71,7 +71,7 @@ class Repository
                 throw new OrderFailedException();
             }
 
-            if (!$this->discRepository->reserveFor($disc, $order->quantity)) {
+            if (!$this->discRepository->reserveFor($disc, $order)) {
                 throw new UnableToReserveStockException();
             }
         });
