@@ -42,11 +42,11 @@ class Repository
         return $this->getModel()->find($id);
     }
 
-    public function create(array $attributes): ?Order
+    public function create(array $attributes): Order
     {
         $order = $this->getModel();
         if (!$this->customerIsInvalid($attributes)) {
-            return null;
+            throw new InvalidCustomerException();
         }
 
         $order->fill($attributes);

@@ -65,7 +65,7 @@ class OrdersTest extends TestCase
 
         // Assertions
         $response->assertJson([
-            'error' => 'Error when registering a new Order.',
+            'error' => 'Customer does not exist',
         ]);
 
         $response->assertStatus(422);
