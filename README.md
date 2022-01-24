@@ -17,11 +17,21 @@ Laravel Sail foi a resposta pra isso. Por ser algo novo, decidi usar para aprend
 
 ## Instalação.
 
+### Copiando as variáveis de ambiente
+A primeira coisa que precisamos fazer é copiar as variáveis de ambiente, elas são necessárias para a instalação e utilização do projeto.
+
+```shell
+cp .env.example .env
+```
+
+Nas últimas linhas desse arquivo .env tem o usuário no qual os comandos do docker irão rodar. Eu já deixei
+padrão para o usuário 1000 que é ID que normalmente se tem nas máquinas, altera à sua necessidade.
+
+### Instalando as dependências
 Após clonar o repositório, precisamos de alguns passos para rodar a aplicação local.
 A primeira coisa que precisamos fazer é instalar as dependências do laravel.
 Considerando que você não tenha o PHP nem o composer na máquina, aqui está um comando para você rodar a instalação das dependências:
 
-### Instalando as dependências
 
 ```shell
 docker run --rm \
@@ -42,10 +52,10 @@ alias sail='[ -f sail ] && bash sail || bash vendor/bin/sail'
 ```
 Assim poderemos usar os comandos usando apenas `sail`.
 
-### Copiando as variáveis de ambiente.
-
+### Subindo as máquinas
+Com o alias criado, podemos subir o ambiente utilizando o comando:
 ```shell
-cp .env.example .env
+sail up -d
 ```
 
 ### Key:generate
@@ -62,7 +72,16 @@ sail artisan migrate
 
 Este comando irá preparar o banco de dados para receber os acessos.
 
-### Testes
+Você vai poder acessar o site local através de http://locahost.
+
+### Rodando os testes
+Para os testes, decidi usar um banco de dados em memória, para torna-los mais rápidos para rodar.
+Para isso, precisamos primeiro criar o banco de dados com esse comando:
+
+```shell
+touch database/database.sqlite
+```
+
 Todos os endpoints estão cobertos por testes, para testa-los, basta rodar:
 
 ```shell
