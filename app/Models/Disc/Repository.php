@@ -49,4 +49,23 @@ class Repository
     {
         return $disc->delete();
     }
+
+    public function discHasStock(Disc $disc, int $quantity): bool
+    {
+        $totalStock = $this->calculateStockWithReserved($disc);
+
+        return $totalStock >= $quantity;
+    }
+
+    private function calculateStockWithReserved(Disc $disc)
+    {
+        $reservedStock = $disc->getReservedStock();
+        $stock = $disc->getStock();
+
+        $totalStock = $stock - $reservedStock;
+
+        return $totalStock > 0
+            ? $totalStock
+            : 0;
+    }
 }

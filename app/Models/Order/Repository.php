@@ -2,7 +2,10 @@
 
 namespace App\Models\Order;
 
+use App\Models\Disc\Disc;
+use App\Models\Disc\Repository as DiscRepository;
 use App\Models\User\Repository as CustomerRepository;
+use App\Models\User\User;
 use Illuminate\Support\Collection;
 
 class Repository
@@ -12,9 +15,15 @@ class Repository
      */
     private $customerRepository;
 
-    public function __construct(CustomerRepository $customerRepository)
+    /**
+     * @var DiscRepository
+     */
+    private $discRepository;
+
+    public function __construct(CustomerRepository $customerRepository, DiscRepository $discRepository)
     {
         $this->customerRepository = $customerRepository;
+        $this->discRepository = $discRepository;
     }
 
     public function list(?array $filters = []): Collection
@@ -44,12 +53,15 @@ class Repository
 
     public function create(array $attributes): Order
     {
-        $order = $this->getModel();
-        if (!$this->customerIsInvalid($attributes)) {
-            throw new InvalidCustomerException();
-        }
+        $disc = $this->getDisc($attributes);
+        $customer = $this->getCustomer($attributes);
 
-        $order->fill($attributes);
+        $this->validateQuantity($disc, $attributes);
+
+        $order = $this->getModel();
+        $order->customer()->associate($customer);
+        $order->disc()->associate($disc);
+        $order->quantity = $attributes['quantity'];
 
         if (!$order->save()) {
             throw new OrderFailedException();
@@ -63,12 +75,32 @@ class Repository
         return app(Order::class);
     }
 
-    private function customerIsInvalid(array $attributes): bool
+    private function getCustomer(array $attributes): User
     {
-        if (!$customerId = $attributes['customer_id'] ?? false) {
-            return false;
+        $customerId = $attributes['customer_id'] ?? '';
+        if (!$customer = $this->customerRepository->findById($customerId)) {
+            throw new InvalidCustomerException();
         }
 
-        return (bool) $this->customerRepository->findById($customerId);
+        return $customer;
+    }
+
+    private function getDisc(array $attributes): Disc
+    {
+        $discId = $attributes['disc_id'] ?? '';
+        if (!$customer = $this->discRepository->findById($discId)) {
+            throw new InvalidDiscException();
+        }
+
+        return $customer;
+    }
+
+    private function validateQuantity(Disc $disc, array $attributes): void
+    {
+        $quantity = $attributes['quantity'];
+
+        if (!$this->discRepository->discHasStock($disc, $quantity)) {
+            throw new InvalidQuantityException();
+        }
     }
 }

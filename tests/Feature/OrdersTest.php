@@ -51,6 +51,26 @@ class OrdersTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function testShouldNotCreateOrderForInvalidStock(): void
+    {
+        // Actions
+        $this->createCustomers();
+        $this->createDiscs();
+        $this->createOrders();
+        $response = $this->postJson('api/orders', [
+            'customer_id' => 1,
+            'disc_id' => 1,
+            'quantity' => 101,
+        ]);
+
+        // Assertions
+        $response->assertJson([
+            'error' => 'There is no stock for the disc selected.',
+        ]);
+
+        $response->assertStatus(422);
+    }
+
     public function testShouldNotCreateAnOrderForAnInvalidUser(): void
     {
         // Actions
