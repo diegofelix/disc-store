@@ -2,27 +2,22 @@
 
 namespace App\Models\Order;
 
-use App\Models\Disc\Repository as DiscRepository;
-use Illuminate\Support\Facades\Log;
-
 class Processor
 {
     /**
-     * @var DiscRepository
+     * @var Repository
      */
-    private $discRepository;
+    private $repository;
 
-    public function __construct(DiscRepository $repository)
+    public function __construct(Repository $repository)
     {
-        $this->discRepository = $repository;
+        $this->repository = $repository;
     }
 
     public function process(Order $order)
     {
-        $disc = $this->discRepository->findById($order->disc_id);
-
         // Cancels orders that do not have stock anymore.
-        if (!$this->discRepository->releaseReservedStockFor($disc, $order)) {
+        if (!$this->repository->releaseReservedStockFor($order)) {
             $order->status = Order::STATUS_CANCELED;
         }
 

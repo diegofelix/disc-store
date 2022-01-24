@@ -71,17 +71,12 @@ class Repository
                 throw new OrderFailedException();
             }
 
-            if (!$this->discRepository->reserveFor($disc, $order)) {
+            if (!$this->reserveFor($disc, $order)) {
                 throw new UnableToReserveStockException();
             }
         });
 
         return $order;
-    }
-
-    private function getModel(): Order
-    {
-        return app(Order::class);
     }
 
     private function getCustomer(array $attributes): User
@@ -111,5 +106,51 @@ class Repository
         if (!$this->discRepository->discHasStock($disc, $quantity)) {
             throw new InvalidQuantityException();
         }
+    }
+
+    private function reserveFor(Disc $disc, Order $order): bool
+    {
+        return (bool) ReservedStock::create([
+            'order_id' => $order->id,
+            'disc_id' => $disc->id,
+            'quantity' => $order->quantity,
+        ]);
+    }
+
+    public function releaseReservedStockFor(Order $order): bool
+    {
+        /** @var Disc $disc */
+        $disc = $order->disc;
+
+
+        // Checks again to see if this still has the amount
+        // of stock we need.
+        if ($disc->getStock() < $order->quantity) {
+            return false;
+        }
+
+        $this->discRepository->decreaseStock($disc, $order->quantity);
+
+        $reservedOrder = $this->getReservedStockBy($disc, $order);
+
+        return $reservedOrder->delete();
+    }
+
+    private function getReservedStockBy(Disc $disc, Order $order): ?ReservedStock
+    {
+        return $this->getReservedStockModel()->where([
+            'order_id' => $order->id,
+            'disc_id' => $disc->id,
+        ])->first();
+    }
+
+    private function getModel(): Order
+    {
+        return app(Order::class);
+    }
+
+    private function getReservedStockModel(): ReservedStock
+    {
+        return app(ReservedStock::class);
     }
 }

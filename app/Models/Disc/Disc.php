@@ -32,13 +32,6 @@ class Disc extends Model
         'stock',
     ];
 
-    public function getReservedStock(): int
-    {
-        return $this->reserved_stock > 0
-            ? $this->reserved_stock
-            : 0;
-    }
-
     public function getStock(): int
     {
         return $this->stock > 0
