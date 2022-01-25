@@ -127,7 +127,6 @@ class Repository
         /** @var Disc $disc */
         $disc = $order->disc;
 
-
         // Checks again to see if this still has the amount
         // of stock we need.
         if ($disc->getStock() < $order->quantity) {
