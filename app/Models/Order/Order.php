@@ -38,4 +38,19 @@ class Order extends Model
     {
         return $this->belongsTo(Disc::class);
     }
+
+    public function markAsCanceled(): void
+    {
+        $this->status = Order::STATUS_CANCELED;
+    }
+
+    public function markAsSuccess(): void
+    {
+        $this->status = Order::STATUS_SUCCESS;
+    }
+
+    public function markAsProcessing(): void
+    {
+        $this->status = Order::STATUS_PROCESSING;
+    }
 }

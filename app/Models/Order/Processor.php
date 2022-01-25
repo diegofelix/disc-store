@@ -18,10 +18,10 @@ class Processor
     {
         // Cancels orders that do not have stock anymore.
         if (!$this->repository->releaseReservedStockFor($order)) {
-            $order->status = Order::STATUS_CANCELED;
+            $order->markAsCanceled();
         }
 
-        $order->status = Order::STATUS_SUCCESS;
+        $order->markAsSuccess();
         $order->save();
     }
 }

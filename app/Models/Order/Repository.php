@@ -66,7 +66,7 @@ class Repository
         $order->customer()->associate($customer);
         $order->disc()->associate($disc);
         $order->quantity = $attributes['quantity'];
-        $order->status = Order::STATUS_PROCESSING;
+        $order->markAsProcessing();
 
         // This Database transaction makes sure that if we cannot
         // create an order, we will not be able to reserve stock too.
