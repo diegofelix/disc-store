@@ -5,8 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Admin\CreateOrder;
 use App\Http\Requests\Admin\GetOrders;
 use App\Jobs\ProcessOrder;
-use App\Models\Order\InvalidCustomerException;
-use App\Models\Order\InvalidQuantityException;
+use App\Models\Order\UnableToCreateOrderException;
 use App\Models\Order\Presenter;
 use App\Models\Order\Repository;
 use Illuminate\Http\JsonResponse;
@@ -43,7 +42,7 @@ class OrdersController extends Controller
     {
         try {
             $order = $this->orders->create($request->validated());
-        } catch (InvalidCustomerException | InvalidQuantityException $exception) {
+        } catch (UnableToCreateOrderException $exception) {
             return response()->json([
                 'error' => $exception->getMessage(),
             ], Response::HTTP_UNPROCESSABLE_ENTITY);

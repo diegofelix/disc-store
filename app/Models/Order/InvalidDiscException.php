@@ -2,9 +2,7 @@
 
 namespace App\Models\Order;
 
-use Exception;
-
-class InvalidDiscException extends Exception
+class InvalidDiscException extends UnableToCreateOrderException
 {
     protected $message = 'Disc does not exist';
 }

@@ -2,9 +2,7 @@
 
 namespace App\Models\Order;
 
-use Exception;
-
-class InvalidQuantityException extends Exception
+class InvalidQuantityException extends UnableToCreateOrderException
 {
     protected $message = 'There is no stock for the disc selected.';
 }
