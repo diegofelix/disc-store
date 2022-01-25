@@ -4,6 +4,11 @@ namespace App\Models\Order;
 
 use App\Models\Disc\Disc;
 use App\Models\Disc\Repository as DiscRepository;
+use App\Models\Order\Exceptions\InvalidCustomerException;
+use App\Models\Order\Exceptions\InvalidDiscException;
+use App\Models\Order\Exceptions\InvalidQuantityException;
+use App\Models\Order\Exceptions\OrderFailedException;
+use App\Models\Order\Exceptions\UnableToReserveStockException;
 use App\Models\User\Repository as CustomerRepository;
 use App\Models\User\User;
 use Illuminate\Support\Collection;

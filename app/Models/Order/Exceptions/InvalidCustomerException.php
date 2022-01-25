@@ -1,8 +1,6 @@
 <?php
 
-namespace App\Models\Order;
-
-use Exception;
+namespace App\Models\Order\Exceptions;
 
 class InvalidCustomerException extends UnableToCreateOrderException
 {

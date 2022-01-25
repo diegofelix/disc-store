@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Order;
+namespace App\Models\Order\Exceptions;
 
 class UnableToReserveStockException extends UnableToCreateOrderException
 {

@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Admin\CreateOrder;
 use App\Http\Requests\Admin\GetOrders;
 use App\Jobs\ProcessOrder;
-use App\Models\Order\UnableToCreateOrderException;
+use App\Models\Order\Exceptions\UnableToCreateOrderException;
 use App\Models\Order\Presenter;
 use App\Models\Order\Repository;
 use Illuminate\Http\JsonResponse;
